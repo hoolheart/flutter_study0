@@ -51,6 +51,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   WordPair _wordPair = WordPair("hello", "world");
+  final _candidates = <WordPair>[];
+  final _marked = Set<WordPair>();
+  final _biggerStyle = const TextStyle(
+    fontSize: 18.0,
+    fontWeight: FontWeight.bold,
+  );
 
   void _incrementCounter() {
     setState(() {
@@ -69,6 +75,68 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Widget _buildRow(WordPair pair) {
+    final bool marked = _marked.contains(pair); // marked flag
+    return ListTile(
+      title: Text(
+        pair.asPascalCase,
+        style: _biggerStyle,
+      ),
+      trailing: Icon(
+        marked ? Icons.favorite : Icons.favorite_border,
+        color: marked ? Colors.red : null,
+      ),
+      onTap: () {
+        setState(() {
+          if (marked) {
+            _marked.remove(pair);
+          } else {
+            _marked.add(pair);
+          }
+        });
+      },
+    );
+  }
+
+  Widget _buildList() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, i) {
+        if (i.isOdd) {
+          return const Divider();
+        }
+        final index = i ~/ 2;
+        if (index >= _candidates.length) {
+          _candidates.addAll(generateWordPairs().take(10));
+        }
+        return _buildRow(_candidates[index]);
+      },
+    );
+  }
+
+  void _showOnlyMarded() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) {
+        final Iterable<ListTile> tiles = _marked.map((e) => ListTile(
+              title: Text(
+                e.asPascalCase,
+                style: _biggerStyle,
+              ),
+            ));
+        final List<Widget> divided = ListTile.divideTiles(
+          tiles: tiles,
+          context: context,
+        ).toList();
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("Marked Items"),
+          ),
+          body: ListView(children: divided),
+        );
+      },
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -83,41 +151,45 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(onPressed: _showOnlyMarded, icon: const Icon(Icons.list)),
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              _wordPair.asPascalCase,
-            ),
-            const Text(""), // Empty line
-            const Text(
-              'Count of the button being pressed:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
+      body: _buildList(),
+      // body: Center(
+      //   // Center is a layout widget. It takes a single child and positions it
+      //   // in the middle of the parent.
+      //   child: Column(
+      //     // Column is also a layout widget. It takes a list of children and
+      //     // arranges them vertically. By default, it sizes itself to fit its
+      //     // children horizontally, and tries to be as tall as its parent.
+      //     //
+      //     // Invoke "debug painting" (press "p" in the console, choose the
+      //     // "Toggle Debug Paint" action from the Flutter Inspector in Android
+      //     // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+      //     // to see the wireframe for each widget.
+      //     //
+      //     // Column has various properties to control how it sizes itself and
+      //     // how it positions its children. Here we use mainAxisAlignment to
+      //     // center the children vertically; the main axis here is the vertical
+      //     // axis because Columns are vertical (the cross axis would be
+      //     // horizontal).
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: <Widget>[
+      //       Text(
+      //         _wordPair.asPascalCase,
+      //       ),
+      //       const Text(""), // Empty line
+      //       const Text(
+      //         'Count of the button being pressed:',
+      //       ),
+      //       Text(
+      //         '$_counter',
+      //         style: Theme.of(context).textTheme.headline4,
+      //       ),
+      //     ],
+      //   ),
+      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
