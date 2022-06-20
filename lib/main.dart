@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_study0/test_dart.dart';
 
 void main() {
+  testDartCore();
+
   runApp(const MyApp());
 }
 
@@ -52,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   WordPair _wordPair = WordPair("hello", "world");
   final _candidates = <WordPair>[];
-  final _marked = Set<WordPair>();
+  final _marked = <WordPair>{};
   final _biggerStyle = const TextStyle(
     fontSize: 18.0,
     fontWeight: FontWeight.bold,
@@ -150,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('${widget.title} ${_counter + 1} ${_wordPair.asPascalCase}'),
         actions: <Widget>[
           IconButton(onPressed: _showOnlyMarded, icon: const Icon(Icons.list)),
         ],
